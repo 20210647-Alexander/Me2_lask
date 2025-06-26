@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción FPL</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h2 {
+            color: #4a5568;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+            color: #2d3748;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group input:hover {
+            border-color: #cbd5e0;
+            background: white;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .prediction-result {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+            display: none;
+        }
+
+        .prediction-result.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            .header h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .tooltip {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: #2d3748;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .form-group:hover .tooltip {
+            opacity: 1;
+        }
+        
+        .prediction-result {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+            display: none;
+        }
+
+        .prediction-result.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>⚽ Predicción FPL</h2>
+            <p>Introduce las estadísticas del jugador para predecir sus puntos</p>
+        </div>
+
+        <form method="POST" id="predictionForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="minutes">⏱️ Minutos</label>
+                    <input type="number" name="Minutes" id="minutes" step="0.01" required placeholder="90.0" value="{{ request.form.Minutes or '' }}">
+                    <div class="tooltip">Minutos jugados</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bonus">🏆 Bonus</label>
+                    <input type="number" name="Bonus" id="bonus" step="0.01" required placeholder="0.0" value="{{ request.form.Bonus or '' }}">
+                    <div class="tooltip">Puntos bonus</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ict">📊 ICT</label>
+                    <input type="number" name="ICT" id="ict" step="0.01" required placeholder="150.0" value="{{ request.form.ICT or '' }}">
+                    <div class="tooltip">Índice ICT</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tsb">👥 TSB</label>
+                    <input type="number" name="TSB" id="tsb" step="0.01" required placeholder="15.5" value="{{ request.form.TSB or '' }}">
+                    <div class="tooltip">% Seleccionado</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="influence">💫 Influencia</label>
+                    <input type="number" name="Influence" id="influence" step="0.01" required placeholder="50.0" value="{{ request.form.Influence or '' }}">
+                    <div class="tooltip">Puntos de influencia</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="goals">⚽ Goles</label>
+                    <input type="number" name="Goals_scored" id="goals" step="0.01" required placeholder="1.0" value="{{ request.form.Goals_scored or '' }}">
+                    <div class="tooltip">Goles anotados</div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">🔮 Predecir Puntos</button>
+        </form>
+
+        <div class="prediction-result {{ 'show' if prediction is not none else '' }}" id="predictionResult">
+            <h3>🎯 Predicción de puntos: <span id="predictionValue">{{ prediction }}</span></h3>
+        </div>
+    </div>
+</body>
+</html>
